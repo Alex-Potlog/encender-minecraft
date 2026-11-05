@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button id="b">Encender server</button>
+<p id="s"></p>
+<script>
+const URL = "https://TU-URL.lambda-url.eu-south-2.on.aws/";
+b.onclick = async () => {
+  const password = prompt("Contraseña:");
+  s.textContent = "Enviando...";
+  const r = await fetch(URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({password})
+  });
+  s.textContent = await r.text();
+};
+</script>
+</body>
+</html>
