@@ -1,25 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <button id="b">Encender server</button>
+<button id="b">Encender server</button>
 <p id="s"></p>
 <script>
-const URL = "https://vji3lvzvsalnnyoyamcrjmleb40gbvuz.lambda-url.us-east-1.on.aws/";
-b.onclick = async () => {
-  const password = prompt("Contraseña:");
-  s.textContent = "Enviando...";
+const URL = "https://TU-URL.lambda-url.eu-south-2.on.aws/";
+let password = "";
+
+async function call(action) {
   const r = await fetch(URL, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({password})
+    body: JSON.stringify({password, action})
   });
-  s.textContent = await r.text();
+  return r.json();
+}
+
+async function poll() {
+  const d = await call("status");
+  if (d.ready) {
+    s.textContent = "Listo: " + d.ip + ":25565";
+    b.disabled = false;
+  } else {
+    s.textContent = "Estado: " + d.state + "... (Forge tarda 1-3 min tras arrancar)";
+    setTimeout(poll, 5000);
+  }
+}
+
+b.onclick = async () => {
+  password = prompt("Contraseña:");
+  if (!password) return;
+  b.disabled = true;
+  const d = await call("start");
+  s.textContent = d.message || "";
+  if (d.state === "pending" || d.state === "running") poll();
+  else b.disabled = false;
 };
 </script>
-</body>
-</html>
