@@ -23,10 +23,17 @@
     const status = document.getElementById("status");
 
     button.addEventListener("click", async () => {
+      const password = prompt("Contraseña:");
+      if (!password) return;
+
       button.disabled = true;
       status.textContent = "Solicitando encendido...";
       try {
-        const response = await fetch(ENDPOINT, { method: "PUT" });
+        const response = await fetch(ENDPOINT, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password, action: "start" })
+        });
         const message = await response.text();
         if (!response.ok) throw new Error(`Error HTTP ${response.status}${message ? `: ${message}` : ""}`);
         status.textContent = message || "Solicitud de encendido enviada.";
