@@ -22,24 +22,47 @@
     const button = document.getElementById("start");
     const status = document.getElementById("status");
 
+    async function call(action, password) {
+      const response = await fetch(ENDPOINT, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, action })
+      });
+      if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
+      return response.json();
+    }
+
+    async function poll(password) {
+      try {
+        const data = await call("status", password);
+        if (data.ready) {
+          status.textContent = `Listo: ${data.ip}:25565`;
+          button.disabled = false;
+        } else {
+          status.textContent = `Estado: ${data.state || "iniciando"}... (Forge puede tardar 1-3 min)`;
+          setTimeout(() => poll(password), 5000);
+        }
+      } catch (error) {
+        status.textContent = `No se pudo consultar el estado: ${error.message}`;
+        button.disabled = false;
+      }
+    }
+
     button.addEventListener("click", async () => {
       const password = prompt("Contraseña:");
       if (!password) return;
-
       button.disabled = true;
       status.textContent = "Solicitando encendido...";
       try {
-        const response = await fetch(ENDPOINT, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ password, action: "start" })
-        });
-        const message = await response.text();
-        if (!response.ok) throw new Error(`Error HTTP ${response.status}${message ? `: ${message}` : ""}`);
-        status.textContent = message || "Solicitud de encendido enviada.";
+        const data = await call("start", password);
+        status.textContent = data.message || "Solicitud enviada.";
+        if (data.state === "pending" || data.state === "running") {
+          poll(password);
+        } else {
+          button.disabled = false;
+        }
       } catch (error) {
         status.textContent = `No se pudo encender el servidor: ${error.message}`;
-      } finally {
         button.disabled = false;
       }
     });
