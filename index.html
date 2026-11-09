@@ -14,16 +14,17 @@
 </head>
 <body>
   <h1>Encender servidores</h1>
-  <p>Añade servidores al array <code>SERVERS</code> para mostrarlos aquí.</p>
   <main id="servers"></main>
-  <p><a href="server2.html">Página del otro servidor</a></p>
 
   <script>
-    // Para añadir otro servidor, agrega un objeto con nombre y endpoint.
     const SERVERS = [
       {
         name: "Mods",
         endpoint: "https://rba04gz802.execute-api.eu-south-2.amazonaws.com/start/mods"
+      },
+      {
+        name: "Invierno",
+        endpoint: "https://rba04gz802.execute-api.eu-south-2.amazonaws.com/start/invierno"
       }
     ];
 
